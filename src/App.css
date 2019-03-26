@@ -91,7 +91,7 @@ body, .app {
 }
 
 .search-books-bar input {
-  width: 100%;
+  width: 90%;
   padding: 15px 10px;
   font-size: 1.25em;
   border: none;
@@ -120,6 +120,20 @@ button:active {
 
 .search-books-results {
   padding: 80px 10px 20px;
+}
+
+.clear-query {
+  float: right;
+  width: 10%;
+  height: 100%;
+  background-image: url('./icons/cancel.svg');
+  background-size: 100% 100%;
+  border: 0;
+  color: black;
+  font-size: 0;
+  vertical-align: middle;
+  cursor: pointer;
+  outline: none;
 }
 
 /* books grid */
