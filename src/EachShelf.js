@@ -11,6 +11,9 @@ class EachShelf extends Component {
             <h2 className="bookshelf-title">{title}</h2>
             <div className="bookshelf-books">
               <ol className="books-grid">
+              {/*
+                  Iterates through the array and renders each book 
+              */}
                 {which.map((id) => 
                     <li key={id}>
                         <Book shelfUpdater={shelfUpdater} id={id}/>
