@@ -3,42 +3,54 @@ import * as BooksAPI from './BooksAPI'
 import { Route, Link } from 'react-router-dom'
 import './App.css'
 import EachShelf from './EachShelf'
-//import Search from './Search'
-//import Book from './Book'
 
 class BooksApp extends React.Component {
+  //Each state element is corresponding to their shelves
   state = {
     query: '',
-    currentlyReading: ['jAUODAAAQBAJ', 'nggnmAEACAAJ'],
-    wantToRead: ['1wy49i-gQjIC', 'IOejDAAAQBAJ'],
-    read: ['sJf1vQAACAAJ'],
+    currentlyReading: ['nggnmAEACAAJ'],
+    wantToRead: [],
+    read: [],
     searchResults: [''],
-    allBooks: []
+    allBooks: [],
+    firstTime: true
   }
 
+  //Gets all books from the API as soon as possible
   componentWillMount() {
-    BooksAPI.getAll().then((response) => {
-      this.setState({searchResults: '\'' + response[0].id + '\''})
-      console.log(this.state.searchResults)
-      //Dá pra acessar via response[0].id
-      //this.setState({allBooks: response})
+    BooksAPI.getAll().then((res) => {
+      this.setState({allBooks: res})
     })
   }
+  
+  //Gets all books from the API and saves each the book's ID in an Array
+  componentDidMount() {
+    BooksAPI.getAll().then((res) => {
+      let anArray = []
+      for(let i = 0; i < res.length; i++) {
+        anArray[i] = res[i].id
+      }
+      this.setState({searchResults: anArray})
+  })}
 
+  //Updates each shelf through BooksAPI.update
   shelfUpdater = (controller) => {
     this.setState(controller)
   }
   
+  //Saves what the user is typing on the input value
   updateQuery = (query) => {
     this.setState({query}) 
   }
   
+  //Saves all returned books from the API in an array
   searchBooks = (query) => {
     BooksAPI.search(query).then(books => {
       this.setState({searchResults: books})
     })
   }
   
+  //Resets input to empty and placeholder
   clearQuery = () => {
     this.setState({query: ''})
   }
@@ -49,20 +61,6 @@ class BooksApp extends React.Component {
 
     return (
       <div className="app">
-        <Route path='/search' render={() => (
-          <div className="search-books">
-            <div className="search-books-bar">
-              <Link to='/'><button className="close-search">Close</button></Link>
-              <div className="search-books-input-wrapper">
-                <input type="text" placeholder="Search by title or author"
-                  value={query} onChange={(event) => this.updateQuery(event.target.value)}
-                  />
-                <button className='clear-query' onClick={this.clearQuery}>Clear Query</button>
-              </div>
-            </div>
-            <EachShelf title={'Search Results'} which={searchResults} shelfUpdater={this.shelfUpdater}/>
-          </div>
-        )}/>
 
         <Route exact path='/' render={() => (
           <div className="list-books">
@@ -75,6 +73,21 @@ class BooksApp extends React.Component {
             <div className="open-search">
               <Link to='/search'><button>Add a Book</button></Link>
             </div>
+          </div>
+        )}/>
+        
+        <Route path='/search' render={() => (
+          <div className="search-books">
+            <div className="search-books-bar">
+              <Link to='/'><button className="close-search">Close</button></Link>
+              <div className="search-books-input-wrapper">
+                <input type="text" placeholder="Search by title or author"
+                  value={query} onChange={(event) => this.updateQuery(event.target.value)}
+                  />
+                <button className='clear-query' onClick={this.clearQuery}>Clear Query</button>
+              </div>
+            </div>
+            <EachShelf title={'Search Results'} which={searchResults} shelfUpdater={this.shelfUpdater}/>
           </div>
         )}/>
       </div>
