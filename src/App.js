@@ -12,11 +12,11 @@ class BooksApp extends React.Component {
   */
 
   state = {
-    query: '',
     currentlyReading: ['nggnmAEACAAJ', 'sJf1vQAACAAJ'],
     wantToRead: ['74XNzF_al3MC', 'evuwdDLfAyYC'],
     read: ['jAUODAAAQBAJ', 'IOejDAAAQBAJ', '1wy49i-gQjIC'],
-    searchResults: ['']
+    searchResults: [''],
+    allBooks: ['']
   }
   
   //Gets all books from the API and saves each the book's ID in an Array
@@ -26,7 +26,7 @@ class BooksApp extends React.Component {
       for(let i = 0; i < res.length; i++) {
         anArray[i] = res[i].id
       }
-      this.setState({searchResults: anArray})
+      this.setState({allBooks: anArray})
   })}
 
   //Updates each shelf through the app in BooksAPI.update
@@ -36,24 +36,37 @@ class BooksApp extends React.Component {
   
   //Saves and updates what the user is typing on the input value
   updateQuery = (query) => {
-    this.setState({query}) 
+    if(query === undefined)
+      query = '';
+      
+    this.setState({query})
   }
   
-  //Will save all returned books from the API in an array
+  //Saves all returned books from the API in an array
   searchBooks = (query) => {
-    BooksAPI.search(query).then(books => {
-      this.setState({searchResults: books.push})
+    BooksAPI.search(query).then((serverBooks) => {
+
+      let serverIDs = []
+
+      if(serverBooks !== undefined) {
+        for(let i = 0; i < serverBooks.length; i++) {
+          serverIDs[i] = serverBooks[i].id
+        }
+        this.setState({searchResults: serverIDs})
+      } else {
+        this.setState({searchResults: []})
+      }
     })
   }
-  
+
   //Resets input to empty and placeholder
   clearQuery = () => {
-    this.setState({query: ''})
+    this.setState({searchResults: []})
   }
 
   render() {
     
-    const { currentlyReading, wantToRead, read, searchResults, query } = this.state
+    const { currentlyReading, wantToRead, read, searchResults } = this.state
 
     return (
       <div className="app">
@@ -89,7 +102,7 @@ class BooksApp extends React.Component {
                   Search's input calls for state.query updates
               */}
                 <input type="text" placeholder="Search by title or author"
-                  value={query} onChange={(event) => this.updateQuery(event.target.value)}
+                  onChange={(event) => this.searchBooks(event.target.value)}
                   />
                 <button className='clear-query' onClick={this.clearQuery}>Clear Query</button>
               </div>
@@ -97,7 +110,7 @@ class BooksApp extends React.Component {
             {/* 
                 Treats search results just like the other shelves
             */}
-            <EachShelf title={'Search Results'} which={searchResults} shelfUpdater={this.shelfUpdater}/>
+              <EachShelf title={'Search Results'} which={searchResults} shelfUpdater={this.shelfUpdater}/>
           </div>
           )}/>
       </div>
@@ -106,9 +119,3 @@ class BooksApp extends React.Component {
 }
 
 export default BooksApp
-
-/*
-
-
-
-      */

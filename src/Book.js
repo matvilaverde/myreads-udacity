@@ -20,7 +20,7 @@ class Book extends Component {
     }
 
     /*
-        Sets this book shelf to the new one and calls API update to do it on server;
+        Sets this book's shelf to the new one and calls API update to do it on server;
         shelfUpdater is using the below select's value to update itself on the array
     */
     shelfChanger = (event) => {
