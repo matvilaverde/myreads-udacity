@@ -5,28 +5,37 @@ import './App.css'
 import EachShelf from './EachShelf'
 
 class BooksApp extends React.Component {
-  /*
-    Each state element is corresponding to their shelves;
-    Their inicial values are equal to the server, so when the
-    pages updates, they are on their correct shelves
-  */
 
+  //Each state element is corresponding to the app's shelves and query
   state = {
-    currentlyReading: ['nggnmAEACAAJ', 'sJf1vQAACAAJ'],
-    wantToRead: ['74XNzF_al3MC', 'evuwdDLfAyYC'],
-    read: ['jAUODAAAQBAJ', 'IOejDAAAQBAJ', '1wy49i-gQjIC'],
+    currentlyReading: [''],
+    wantToRead: [''],
+    read: [''],
     searchResults: [''],
-    allBooks: ['']
+    query: ''
   }
   
-  //Gets all books from the API and saves each the book's ID in an Array
+  //Gets all books from the server and saves each book's ID in their corresponding array
   componentDidMount() {
     BooksAPI.getAll().then((res) => {
-      let anArray = []
+      let CRShelf = []
+      let WTRShelf = []
+      let RShelf = []
       for(let i = 0; i < res.length; i++) {
-        anArray[i] = res[i].id
+        if(res[i].shelf === 'currentlyReading')
+          CRShelf.push(res[i].id)
+        else if(res[i].shelf === 'wantToRead')
+          WTRShelf.push(res[i].id)
+        else if(res[i].shelf === 'read')
+          RShelf.push(res[i].id)
       }
-      this.setState({allBooks: anArray})
+
+      this.setState({currentlyReading: CRShelf})
+      this.setState({wantToRead: WTRShelf})
+      this.setState({read: RShelf})
+
+      //Starts the search page completely empty
+      this.searchBooks('');
   })}
 
   //Updates each shelf through the app in BooksAPI.update
@@ -42,8 +51,9 @@ class BooksApp extends React.Component {
     this.setState({query})
   }
   
-  //Saves all returned books from the API in an array
+  //Saves all returned books from the API's search in it's array
   searchBooks = (query) => {
+    this.updateQuery(query);
     BooksAPI.search(query).then((serverBooks) => {
 
       let serverIDs = []
@@ -59,14 +69,14 @@ class BooksApp extends React.Component {
     })
   }
 
-  //Resets input to empty and placeholder
+  //Taking an empty search clears it immediatly and cleans the view and query
   clearQuery = () => {
-    this.setState({searchResults: []})
+    this.searchBooks('');
   }
 
   render() {
     
-    const { currentlyReading, wantToRead, read, searchResults } = this.state
+    const { currentlyReading, wantToRead, read, searchResults, query } = this.state
 
     return (
       <div className="app">
@@ -102,7 +112,7 @@ class BooksApp extends React.Component {
                   Search's input calls for state.query updates
               */}
                 <input type="text" placeholder="Search by title or author"
-                  onChange={(event) => this.searchBooks(event.target.value)}
+                  value={query} onChange={(event) => this.searchBooks(event.target.value)}
                   />
                 <button className='clear-query' onClick={this.clearQuery}>Clear Query</button>
               </div>
@@ -110,7 +120,7 @@ class BooksApp extends React.Component {
             {/* 
                 Treats search results just like the other shelves
             */}
-              <EachShelf title={'Search Results'} which={searchResults} shelfUpdater={this.shelfUpdater}/>
+            <EachShelf title={'Search Results'} which={searchResults} shelfUpdater={this.shelfUpdater}/>
           </div>
           )}/>
       </div>
